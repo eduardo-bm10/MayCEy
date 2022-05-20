@@ -20,6 +20,8 @@ pista(P1).
 pista(P21).
 pista(P22).
 pista(P3).
+msj_emergencia(mayday).
+msj_emergencia(secuestro7500).
 
 
 
