@@ -1,3 +1,10 @@
+mensaje_usuario(M,[M|_]):-es_emergencia([M|_]).
+mensaje_usuario(M,[M|L1],[M|L2]):-not(es_emergencia([M|_])),consultar(A,P,H).
+
+avion(Nombre,Matricula,Velocidad,Aerolinea):-
+
+
+
 %Base de conocimiento
 es_pequeno(cessna).
 es_pequeno(beechcraft).
@@ -25,17 +32,29 @@ puede_aterrizar(A,P):-es_pequeno(A),pista_1(P).
 puede_aterrizar(A,P):-es_mediano(A),pista_2_1(P).
 puede_aterrizar(A,P):-es_mediano(A),pista_2_2(P).
 puede_aterrizar(A,P):-es_grande(A),pista_3(P).
-% puede_aterrizar(A,P):-es_pequeno(A),pista_2(P),!,ocupada(P1),desocupada(P).
-/*
-puede_despegar(A,P):-es_pequeno(A),pista_1(P),!,esta_desocupada(P).
-puede_despegar(A,P,D):-es_mediano(A),D=este_oeste,pista_2_1(P),!,esta_desocupada(P).
-puede_despegar(A,P,D):-es_mediano(A),D=oeste_este,pista_2_2(P),!,esta_desocupada(P).
-puede_despegar(A,P):-es_grande(A),pista_3(P),!,esta_desocupada(P).*/
+%puede_aterrizar(A,P):-es_pequeno(A),(pista_2_1(P);pista_2_2(P)),!,ocupada(P1),desocupada(P).
+
+
+%puede_despegar(A,P):-es_pequeno(A),pista_1(P),!,desocupada(P).
+%puede_despegar(A,P,D):-es_mediano(A),D=este_oeste,pista_2_1(P),!,desocupada(P).
+%puede_despegar(A,P,D):-es_mediano(A),D=oeste_este,pista_2_2(P),!,desocupada(P).
+%puede_despegar(A,P):-es_grande(A),pista_3(P),!,desocupada(P).
+
+%Disponibilidad de las pistas.
+%Orden: Hora, lista de pistas disponibles a esa hora.
+disponibles(7,[pista1,pista2_1,pista2_2,pista3]).
+disponibles(H,L):-disponibles(H,L).
+disponibles(H,P):-disponibles(H,[P|_]).
 
 clave_emergencia(mayday).
 clave_emergencia(secuestro).
 
-frase_de_emergencia([X|_]):-clave_emergencia(X),!.
-frase_de_emergencia([_|R]):-frase_de_emergencia(R).
+es_avion(X):-X="cessna".
+
+es_emergencia([X|_]):-clave_emergencia(X),!.
+es_emergencia([_|R]):-es_emergencia(R).
+
+
+
 
 
