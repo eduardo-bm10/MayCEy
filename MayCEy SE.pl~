@@ -1,4 +1,9 @@
-mensaje_usuario(M,A,P,H):-es_emergencia(M).
+info_usuario(M):-es_emergencia(M).
+info_usuario(M):-avion(X.
+
+avion(Nombre,Matricula,Velocidad,Aerolinea):-
+
+
 
 %Base de conocimiento
 es_pequeno(cessna).
@@ -43,6 +48,8 @@ disponibles(H,P):-disponibles(H,[P|_]).
 
 clave_emergencia(mayday).
 clave_emergencia(secuestro).
+
+es_avion(X):-X="cessna".
 
 es_emergencia([X|_]):-clave_emergencia(X),!.
 es_emergencia([_|R]):-es_emergencia(R).

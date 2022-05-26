@@ -1,9 +1,7 @@
-mensaje_usuario(M,[M|_]):-es_emergencia([M|_]).
-mensaje_usuario(M,[M|L1],[M|L2]):-not(es_emergencia([M|_])),consultar(A,P,H).
+/*info_usuario(M):-es_emergencia(M).
+info_usuario(M):-avion(X.
 
-avion(Nombre,Matricula,Velocidad,Aerolinea):-
-
-
+avion(Nombre,Matricula,Velocidad,Aerolinea):-*/
 
 %Base de conocimiento
 es_pequeno(cessna).
@@ -42,14 +40,14 @@ puede_aterrizar(A,P):-es_grande(A),pista_3(P).
 
 %Disponibilidad de las pistas.
 %Orden: Hora, lista de pistas disponibles a esa hora.
-disponibles(7,[pista1,pista2_1,pista2_2,pista3]).
-disponibles(H,L):-disponibles(H,L).
-disponibles(H,P):-disponibles(H,[P|_]).
+%disponibles(7,[pista1,pista2_1,pista2_2,pista3]).
+
+%disponibles(H,L):-disponibles(H,L).
+%disponibles(H,P):-disponibles(H,[P|_]).
 
 clave_emergencia(mayday).
 clave_emergencia(secuestro).
-
-es_avion(X):-X="cessna".
+%.es_avion(X):-X="ces
 
 es_emergencia([X|_]):-clave_emergencia(X),!.
 es_emergencia([_|R]):-es_emergencia(R).
