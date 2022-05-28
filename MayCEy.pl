@@ -85,12 +85,12 @@ bnfaux(M,I):-write("No entendí bien lo que ocupas\n"),bnf2(I).
 
 %Revisa qué desea hacer el usuario
 checkaction(M):-miembro("Cambio",M),miembro("y",M),miembro("Fuera",M),write("Hasta luego").
-checkaction(M):-miembro("Aterrizar",M),getinfo([]).
-checkaction(M):-miembro("aterrizar",M),getinfo([]).
-checkaction(M):-miembro("Despegar",M),getinfo([]).
-checkaction(M):-miembro("despegar",M),getinfo([]).
+checkaction(M):-miembro("Aterrizar",M),getinfoaterrizar([]).
+checkaction(M):-miembro("aterrizar",M),getinfoaterrizar([]).
+checkaction(M):-miembro("Despegar",M),getinfodespegar([]).
+checkaction(M):-miembro("despegar",M),getinfodespegar([]).
 checkaction(M):-miembro("Mayday",M),handleemergency([]).
-checkaction(M):-miembro("mayday",M),write("El usuario tiene una emergencia").
+checkaction(M):-miembro("mayday",M),handleemergency([]).
 checkaction(M):-write("Te entendí bien pero ocupo indicaciones más claras de qué necesitas").
 
 %Pregunta de qué naturaleza es la emergencia
@@ -139,7 +139,7 @@ emergencyresponse(M):- miembro("Motores",M),
    write("Se ha llamado a los bomberos. ").
 
 %Pide información al usuario en caso de que  el quiera  aterrizar o despegar normalmente
-getinfo(R):-write("Digite el modelo de su nave:\n"),
+getinfoaterrizar(R):-write("Digite el modelo de su nave:\n"),
            read(M),
            split_string(M," ", ",",L),
            avionestruc(L,[]),
@@ -170,6 +170,27 @@ getinfo(R):-write("Digite el modelo de su nave:\n"),
            aerolinea(L5,[]),
            append(R5,L5,R6),
            write(R6).
+    getinfodespegar(R):-write("Digite el modelo de su nave:\n"),
+           read(M),
+           split_string(M," ", ",",L),
+           avionestruc(L,[]),
+           append(R,L,R1),
+           write("Digite su matrícula:\n"),
+           read(M1),
+           split_string(M1," ", ",",L1),
+           matricula(L1,[]),
+           append(R1,L1,R2),
+           write("Digite su dirección:\n"),
+           read(M2),
+           split_string(M2," ", ",",L2),
+           direccionestruc(L2,[]),
+           append(R2,L2,R3),
+           write("Digite su aerolínea:\n"),
+           read(M3),
+           split_string(M3," ", ",",L3),
+           aerolinea(L3,[]),
+           append(R3,L3,R4),
+           write(R4).
 
 getinfo(R):-write("Asegurese de escribir la información bien\n"),getinfo([]).
 
