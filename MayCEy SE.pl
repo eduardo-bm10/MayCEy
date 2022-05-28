@@ -1,4 +1,5 @@
-%Base de conocimiento
+%////////////////// Base de conocimiento del sistema experto/////////////
+
 %Lista de aviones
 aviones_pequenos(['Cessna','Beechcraft','Embraer Phenom']).
 aviones_medianos(['Boing717','Embraer190','AirBusA220']).
@@ -84,6 +85,6 @@ confirm_despegue(_):-write('Debe esperar la disponibilidad de la pista').
 miembro(X,[X|_]).
 miembro(X,[_|T]):-miembro(X,T).
 
-
+////////////////////////////////////////////////////////B
 
 

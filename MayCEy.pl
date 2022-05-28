@@ -1,26 +1,3 @@
-avion(cessna).
-avion(beechcraft).
-avion(embraerPhenom).
-avion(boing717).
-avion(embraer190).
-avion(airBusA220).
-avion(boing747).
-avion(airBusA340).
-avion(airBusA380).
-es_peque√±o(cessna).
-es_peque√±o(beechcraft).
-es_peque√±o(embraerPhenom).
-es_mediano(boing717).
-es_mediano(embraer190).
-es_mediano(airBusA220).
-es_grande(boing747).
-es_grande(airBusA340).
-es_grande(airBusA380).
-pista(p1).
-pista(p21).
-pista(p22).
-pista(p3).
-
 %Comunicacion
 saludo([hola|S],S).
 saludo([[buenos|[dias]]|S],S).
@@ -100,7 +77,7 @@ handleemergency(R):-
    split_string(M," ", ",",L),
    emergencyresponse(L),
    handleemergencyaux([]).
-   
+
 %Pide al usuario informaci√≥n para los casos de emergencia que solo solicitan matr√≠cula y avi√≥n
 handleemergencyaux(R):-
    write("Digite el modelo de su nave:\n"),
@@ -113,7 +90,9 @@ handleemergencyaux(R):-
    split_string(M2," ", ",",L1),
    matricula(L1,[]),
    append(R1,L1,R2),
-   write(R2).
+   write(R1),
+   write(L),
+   confirm_aterrizaje_emergencia(R1).
 handleemergencyaux(R):-write("Ocupo que aporte la informaci√≥n bien\n"),handleemergencyaux([]).
 
 %Da una respuesta adecuada seg√∫n la naturaleza de la emergencia
@@ -169,7 +148,12 @@ getinfoaterrizar(R):-write("Digite el modelo de su nave:\n"),
            split_string(M5," ", ",",L5),
            aerolinea(L5,[]),
            append(R5,L5,R6),
-           write(R6).
+           write("A que hora necesita aterrizar?\n"),
+           read(M6),
+           split_string(M6," ", ",",L6),
+           hora(L6,[]),
+           append(R6,L6,R7),
+           confirm_aterrizaje(R1,L6).
     getinfodespegar(R):-write("Digite el modelo de su nave:\n"),
            read(M),
            split_string(M," ", ",",L),
@@ -190,7 +174,7 @@ getinfoaterrizar(R):-write("Digite el modelo de su nave:\n"),
            split_string(M3," ", ",",L3),
            aerolinea(L3,[]),
            append(R3,L3,R4),
-           write(R4).
+           confirm_despegue(R1).
 
 getinfo(R):-write("Asegurese de escribir la informaci√≥n bien\n"),getinfo([]).
 
@@ -335,8 +319,6 @@ determinanteOP(["Mis"|S],S).
 determinanteOP(["mis"|S],S).
 determinanteOP(["dos"|S],S).
 
-
-
 %----------------------------------Sustantivos
 
 
@@ -476,22 +458,16 @@ pistas(["P3"|S],S).
 % son m√∫ltpiples estructuras
 avionestruc(S0,S):-
    avion(S0,S).
-avionestruc(S0,S):-
-   avion(S0,S1),avionestruc(S1,S).
 
 avion(["Cessna"|S],S).
 avion(["Beechcraft"|S],S).
-avion(["Embraer"|S],S).
-avion(["Phenom"|S],S).
-avion(["Boing"|S],S).
-avion(["717"|S],S).
-avion(["190"|S],S).
-avion(["AirBus"|S],S).
-avion(["Airbus"|S],S).
-avion(["A220"|S],S).
-avion(["747"|S],S).
-avion(["A340"|S],S).
-avion(["A380"|S],S).
+avion(["EmbraerPhenom"|S],S).
+avion(["Boing717"|S],S).
+avion(["Embraer190"|S],S).
+avion(["AirBusA220"|S],S).
+avion(["AirBusA340"|S],S).
+avion(["Boing747"|S],S).
+avion(["AirBus380"|S],S).
 
 
 %Horas disponibles
@@ -678,6 +654,103 @@ despedidabase(["adios"|S],S):-write("Hasta luego ").
 despedidabase(["Muchas"|S],S).
 despedidabase(["gracias"|S],S):-write("Con gusto ").
 
+%////////////////// Base de conocimiento del sistema experto/////////////
+
+%Lista de aviones
+aviones_pequenos([["Cessna"],["Beechcraft"],["EmbraerPhenom"]]).
+aviones_medianos([["Boing717"],["Embraer190"],["AirBusA220"]]).
+aviones_grandes([["Boing747"],["AirBusA340"],["AirBusA380"]]).
+
+avion_pequeno(["Cessna"],'P1').
+avion_pequeno(["Beechcraft"],'P1').
+avion_pequeno(["EmbraerPhenom"],'P1').
+avion_mediano(["Boing717"],'P2').
+avion_mediano(["Embraer190"],'P2').
+avion_mediano(["AirBusA220"],'P2').
+avion_grande(["Boing747"],'P3').
+avion_grande(["AirBusA340"],'P3').
+avion_grande(["AirBusA380"],'P3').
+
+%Lista de pistas.
+pistas(['P1','P2-1','P2-2','P3']).
+
+%Lista de palabras clave para determinar una emergencia.
+clave_emergencia(['mayday',['perdida','de','motor'],'parto',['paro','cardiaco'],'secuestro']).
+
+direccion('P2-1',['Este','a','Oeste']).
+direccion('P2-2',['Oeste','a','Este']).
+
+% Horas en las que las pistas no se encuentran disponibles. Horario 24
+% horas.
+% Orden: ocupada(pista,horas en las que esta ocupada).
+ocupada('P1',[["7:00"],["10:00"],["12:00"],["15:00"],["19:00"],["22:00"]]).
+ocupada('P2-1',[["9:00"],["11:00"],['"13:00"'],["17:00"],["20:00"],["23:00"]]).
+ocupada('P2-2',[["7:00"],["13:00"],["14:00"],["16:00"],["17:00"],["21:00"]]).
+ocupada('P3',[["10:00"],["14:00"],["16:00"],["18:00"],["21:00"],["24:00"]]).
+
+%puede_aterrizar():-es_emergencia(F).
+
+% Verifica que un avion A puede aterrizar en la pista P, si la pista
+% est· designada para ese avion.
+% Orden: puede_aterrizar(avion,pista,hora de aterrizaje).
+puede_aterrizar(A,P,H):-avion_pequeno(A,P),not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P2-1',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P2-2',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,grande),P='P3',not(esta_ocupada(P,H)).
+
+% Verifica que un avion A puede aterrizar en la pista P, si la pista P0
+% que est· designada para ese avion est· ocupada.
+% Orden: puede_aterrizar(avion,pista,hora de aterrizaje).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeÒo),P='P2-1',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeÒo),P='P2-2',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeÒo),P='P3',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H),PX='P2-1',PY='P2-2',esta_ocupada(PX,H),esta_ocupada(PY,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P3',not(esta_ocupada(P,H)),P0='P2-1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P3',not(esta_ocupada(P,H)),P0='P2-2',esta_ocupada(P0,H).
+
+% Verifica que un avion A puede despegar desde la pista P, esto si la
+% pista est· designada para ese avion y esta desocupada.
+% Orden: puede_despegar(avion,pista,hora de despegue).
+puede_despegar(A,P,H):-consultar_avion(A,pequeÒo),P='P1',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H):-consultar_avion(A,grande),P='P3',not(esta_ocupada(P,H)).
+puede_despegar(A,P,_):-consultar_avion(A,grande),P='P1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+
+
+% Verifica que un avion A puede despegar desde la pista P, si la pista
+% est· designada para ese avion, est· desocupada, y adem·s cumple con
+% la direccion a la que se desea despegar.
+%Orden: puede_despegar(avion,pista,hora de despegue,direccion de despegue).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),P='P2-1',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),P='P2-2',not(esta_ocupada(P,H)).
+puede_despegar(A,P,_,_):-consultar_avion(A,mediano),P='P1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+puede_despegar(A,P,_,_):-consultar_avion(A,grande),P='P2-1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+puede_despegar(A,P,_,_):-consultar_avion(A,grande),P='P2-2',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+
+% Revisa si el avion A existe, y adem·s si es un avion pequeÒo, mediano
+% o grande.
+% Orden: consultar(avion,tamaÒo).
+consultar_avion(A,T):-aviones_pequenos(L),T='pequeÒo',miembro(A,L).
+consultar_avion(A,T):-aviones_medianos(L),T='mediano',miembro(A,L).
+consultar_avion(A,T):-aviones_grandes(L),T='grande',miembro(A,L).
+
+% Verifica si una pista P est· ocupada a una hora H.
+% Orden: esta_ocupada(pista,hora).
+esta_ocupada(P,H):-ocupada(P,LH),miembro(H,LH).
+
+% Busca si la frase del usuario contiene una palabra de emergencia y
+% determina si se trata de una.
+detectar_clave(X):-clave_emergencia(L),miembro(X,L).
+es_emergencia(L1):-miembro(X,L1),detectar_clave(X).
+
+confirm_aterrizaje(A,H):-puede_aterrizar(A,P,H),!,write('Su avion '),write(A),write(' puede aterrizar en la pista '),write(P),write(' a las '),write(H).
+confirm_aterrizaje(_,_):-write('Debe esperar la disponibilidad de la pista').
+
+confirm_aterrizaje_emergencia(A):-avion_pequeno(A,P),!,write('Entendido, permiso concedido para aterrizar rapidamente en la pista '),write(P).
+confirm_aterrizaje_emergencia(A):-avion_mediano(A,P),!,write('Entendido, permiso concedido para aterrizar rapidamente en la pista '),write(P).
+confirm_aterrizaje_emergencia(A):-avion_grande(A,P),!,write('Entendido, permiso concedido para aterrizar rapidamente en la pista '),write(P).
+
+confirm_despegue(A,P,H,_):-puede_despegar(A,P,H),!,write('Claro, la pista '),write(P),write(' esta preparada para que su '),write(A),write(' despegue a las '),write(H).
+confirm_despegue(A,P,H,Dir):-puede_despegar(A,P,H,Dir),!,write('Listo, la pista '),write(P),write( 'esta preparada para su despegue en direccion '),write(Dir).
+confirm_despegue(_):-write('Debe esperar la disponibilidad de la pista').
 
 %--------------Funciones auxiliares
 miembro(X,[X|_]).
