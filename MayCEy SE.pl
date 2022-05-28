@@ -29,31 +29,31 @@ direccion(p2-2,oeste_este).
 % Verifica que un avion A puede aterrizar en la pista P, si la pista
 % está designada para ese avion.
 % Orden: puede_aterrizar(avion,pista).
-puede_aterrizar(A,P):-consultar_avion(A,pequeño),P='p1'.
-puede_aterrizar(A,P):-consultar_avion(A,mediano),P='p2-1'.
-puede_aterrizar(A,P):-consultar_avion(A,mediano),P='p2-2'.
-puede_aterrizar(A,P):-consultar_avion(A,grande),P='p3'.
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p1',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p2-1',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p2-2',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,grande),P='p3',not(esta_ocupada(P,H)).
 
 % Verifica que un avion A puede aterrizar en la pista P, si la pista P0
 % que está designada para ese avion está ocupada.
 % Orden: puede_aterrizar(avion,pista,hora de aterrizaje).
-puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-1',!,not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-2',!,not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',!,not(esta_ocupada(P,H)),P0='p2-1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',!,not(esta_ocupada(P,H)),P0='p2-2',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-1',not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-2',not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',not(esta_ocupada(P,H)),P0='p2-1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',not(esta_ocupada(P,H)),P0='p2-2',esta_ocupada(P0,H).
 
 % Verifica que un avion A puede despegar desde la pista P, esto si la
 % pista está designada para ese avion y esta desocupada.
 % Orden: puede_despegar(avion,pista,hora de despegue).
-puede_despegar(A,P,H):-consultar_avion(A,pequeño),consultar_pista(P),!,not(esta_ocupada(P,H)).
-puede_despegar(A,P,H):-consultar_avion(A,grande),consultar_pista(P),!,not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,_):-consultar_avion(A,pequeño),P='p1',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,_):-consultar_avion(A,grande),P='p3',not(esta_ocupada(P,H)).
 
 % Verifica que un avion A puede despegar desde la pista P, si la pista
 % está designada para ese avion, está desocupada, y además cumple con
 % la direccion a la que se desea despegar.
 %Orden: puede_despegar(avion,pista,hora de despegue,direccion de despegue).
-puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),!,not(esta_ocupada(P,H)).
-puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),!,not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),not(esta_ocupada(P,H)).
 
 % Revisa si el avion A existe, y además si es un avion pequeño, mediano
 % o grande.
@@ -80,6 +80,15 @@ es_emergencia(L1):-miembro(X,L1),detectar_clave(X).
 % estimada).
 hora_de_aterrizaje(0,0,H,H).
 hora_de_aterrizaje(Vel,Dis,Hora1,HoraX):-hora_de_aterrizaje(0,0,HoraX,HoraX),HoraX is (Vel*Hora1-Dis)/(Vel).
+
+hora_de_disponibilidad(H,L0):-not(miembro(H,L0)),miembro(H1,L0), H1 is H-1.
+hora_de_disponibilidad(H,L0):-hora_de_disponibilidad(H1,L0),H1 is H-1.
+
+confirm_aterrizaje(P,H):-puede_aterrizar(A,P,H),write('Su avion '+A+' puede aterrizar en la pista '+P+' a las '+H),!.
+confirm_aterrizaje(P,H1):-ocupada(P,L0),write('Debe esperar hasta las '+H1+' para disponibilidad de la pista'),hora_de_disponibilidad(H1,L0).
+confirm_despegue(P,H):-puede_despegar(A,P,H,_),write('Claro, la pista '+P+' esta preparada para que su '+A+' despegue a las '+H),!.
+confirm_despegue(P,H1):-ocupada(P,L0),write('Debe esperar la disponibilidad de la pista a las '+H1),hora_de_disponibilidad(H1,L0).
+
 
 %Funcion miembro de una lista.
 miembro(X,[X|_]).
