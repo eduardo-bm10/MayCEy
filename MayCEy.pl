@@ -83,6 +83,7 @@ bnfaux(M,I):-oracion(M,[]),checkaction(M).
 % I: información que se tenga hasta el momento
 bnfaux(M,I):-write("No entendí bien lo que ocupas\n"),bnf2(I).
 
+%Revisa qué desea hacer el usuario
 checkaction(M):-miembro("Cambio",M),miembro("y",M),miembro("Fuera",M),write("Hasta luego").
 checkaction(M):-miembro("Aterrizar",M),getinfo([]).
 checkaction(M):-miembro("aterrizar",M),getinfo([]).
@@ -92,12 +93,15 @@ checkaction(M):-miembro("Mayday",M),handleemergency([]).
 checkaction(M):-miembro("mayday",M),write("El usuario tiene una emergencia").
 checkaction(M):-write("Te entendí bien pero ocupo indicaciones más claras de qué necesitas").
 
+%Pregunta de qué naturaleza es la emergencia
 handleemergency(R):-
    write("Indique su emergencia:\n"),
    read(M),
    split_string(M," ", ",",L),
    emergencyresponse(L),
    handleemergencyaux([]).
+   
+%Pide al usuario información para los casos de emergencia que solo solicitan matrícula y avión
 handleemergencyaux(R):-
    write("Digite el modelo de su nave:\n"),
    read(M1),
@@ -112,6 +116,7 @@ handleemergencyaux(R):-
    write(R2).
 handleemergencyaux(R):-write("Ocupo que aporte la información bien\n"),handleemergencyaux([]).
 
+%Da una respuesta adecuada según la naturaleza de la emergencia
 emergencyresponse(M):- miembro("secuestro",M),
    write("Se ha llamado al OIJ. ").
 emergencyresponse(M):- miembro("infarto",M),
@@ -133,6 +138,7 @@ emergencyresponse(M):- miembro("Motor",M),
 emergencyresponse(M):- miembro("Motores",M),
    write("Se ha llamado a los bomberos. ").
 
+%Pide información al usuario en caso de que  el quiera  aterrizar o despegar normalmente
 getinfo(R):-write("Digite el modelo de su nave:\n"),
            read(M),
            split_string(M," ", ",",L),
@@ -166,8 +172,6 @@ getinfo(R):-write("Digite el modelo de su nave:\n"),
            write(R6).
 
 getinfo(R):-write("Asegurese de escribir la información bien\n"),getinfo([]).
-
-%-----------------
 
 
 %---------------------Posibles estructuras de las oraciones
@@ -657,6 +661,3 @@ despedidabase(["gracias"|S],S):-write("Con gusto ").
 %--------------Funciones auxiliares
 miembro(X,[X|_]).
 miembro(X,[_|R]):-miembro(X,R).
-
-append([],List,List).
-append([Head|Tail],List,[Head|Rest]):-append(Tail,List,Rest).
