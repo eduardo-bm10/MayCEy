@@ -1,59 +1,62 @@
 %Base de conocimiento
-
 %Lista de aviones
-aviones_pequenos([cessna, beechcraft,embraerphenom]).
-aviones_medianos([boing717,embraer190,airbusA220]).
-aviones_grandes([boing747,airbusA340,airbusA380]).
+aviones_pequenos(['Cessna','Beechcraft','Embraer Phenom']).
+aviones_medianos(['Boing717','Embraer190','AirBusA220']).
+aviones_grandes(['Boing747','AirBusA340','AirBusA380']).
 
 %Lista de pistas.
-pistas([p1,p2-1,p2-2,p3]).
+pistas(['P1','P2-1','P2-2','P3']).
 
 %Lista de palabras clave para determinar una emergencia.
-clave_emergencia([mayday,[perdida,de,motor],parto,[paro,cardiaco],secuestro]).
+clave_emergencia(['mayday',['perdida','de','motor'],'parto',['paro','cardiaco'],'secuestro']).
+
+direccion('P2-1',['Este','a','Oeste']).
+direccion('P2-2',['Oeste','a','Este']).
 
 % Horas en las que las pistas no se encuentran disponibles. Horario 24
 % horas.
 % Orden: ocupada(pista,horas en las que esta ocupada).
-ocupada(p1,[7,10,12,15]).
-ocupada(p2-1,[9,11,13,17]).
-ocupada(p2-2,[7,13,14,16]).
-ocupada(p3,[10,14,16,18]).
-
-%Dirección de las pistas.
-%Orden: direccion(pista,direccion de despegue).
-direccion(p2-1,este_oeste).
-direccion(p2-2,oeste_este).
+ocupada('P1',['7','10','12','15','19','22']).
+ocupada('P2-1',['9','11','13','17','20','23']).
+ocupada('P2-2',['7','13','14','16','17','21']).
+ocupada('P3',['10','14','16','18','21','24']).
 
 %puede_aterrizar():-es_emergencia(F).
 
 % Verifica que un avion A puede aterrizar en la pista P, si la pista
 % está designada para ese avion.
-% Orden: puede_aterrizar(avion,pista).
-puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p1',not(esta_ocupada(P,H)).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p2-1',not(esta_ocupada(P,H)).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p2-2',not(esta_ocupada(P,H)).
-puede_aterrizar(A,P,H):-consultar_avion(A,grande),P='p3',not(esta_ocupada(P,H)).
+% Orden: puede_aterrizar(avion,pista,hora de aterrizaje).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='P1',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P2-1',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P2-2',not(esta_ocupada(P,H)).
+puede_aterrizar(A,P,H):-consultar_avion(A,grande),P='P3',not(esta_ocupada(P,H)).
 
 % Verifica que un avion A puede aterrizar en la pista P, si la pista P0
 % que está designada para ese avion está ocupada.
 % Orden: puede_aterrizar(avion,pista,hora de aterrizaje).
-puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-1',not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='p2-2',not(esta_ocupada(P,H)),P0='p1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',not(esta_ocupada(P,H)),P0='p2-1',esta_ocupada(P0,H).
-puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='p3',not(esta_ocupada(P,H)),P0='p2-2',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='P2-1',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='P2-2',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,pequeño),P='P3',not(esta_ocupada(P,H)),P0='P1',esta_ocupada(P0,H),PX='P2-1',PY='P2-2',esta_ocupada(PX,H),esta_ocupada(PY,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P3',not(esta_ocupada(P,H)),P0='P2-1',esta_ocupada(P0,H).
+puede_aterrizar(A,P,H):-consultar_avion(A,mediano),P='P3',not(esta_ocupada(P,H)),P0='P2-2',esta_ocupada(P0,H).
 
 % Verifica que un avion A puede despegar desde la pista P, esto si la
 % pista está designada para ese avion y esta desocupada.
 % Orden: puede_despegar(avion,pista,hora de despegue).
-puede_despegar(A,P,H,_):-consultar_avion(A,pequeño),P='p1',not(esta_ocupada(P,H)).
-puede_despegar(A,P,H,_):-consultar_avion(A,grande),P='p3',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H):-consultar_avion(A,pequeño),P='P1',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H):-consultar_avion(A,grande),P='P3',not(esta_ocupada(P,H)).
+puede_despegar(A,P,_):-consultar_avion(A,grande),P='P1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+
 
 % Verifica que un avion A puede despegar desde la pista P, si la pista
 % está designada para ese avion, está desocupada, y además cumple con
 % la direccion a la que se desea despegar.
 %Orden: puede_despegar(avion,pista,hora de despegue,direccion de despegue).
-puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),not(esta_ocupada(P,H)).
-puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),P='P2-1',not(esta_ocupada(P,H)).
+puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),P='P2-2',not(esta_ocupada(P,H)).
+puede_despegar(A,P,_,_):-consultar_avion(A,mediano),P='P1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+puede_despegar(A,P,_,_):-consultar_avion(A,grande),P='P2-1',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
+puede_despegar(A,P,_,_):-consultar_avion(A,grande),P='P2-2',!,write('Su avion '),write(A),write(' no puede despegar en la pista '),write(P),write(', lo siento').
 
 % Revisa si el avion A existe, y además si es un avion pequeño, mediano
 % o grande.
@@ -61,9 +64,6 @@ puede_despegar(A,P,H,Dir):-consultar_avion(A,mediano),direccion(P,Dir),not(esta_
 consultar_avion(A,T):-aviones_pequenos(L),T='pequeño',miembro(A,L).
 consultar_avion(A,T):-aviones_medianos(L),T='mediano',miembro(A,L).
 consultar_avion(A,T):-aviones_grandes(L),T='grande',miembro(A,L).
-
-%Verifica si una lista está en la lista de pistas.
-consultar_pista(P):-pistas(L),miembro(P,L).
 
 % Verifica si una pista P está ocupada a una hora H.
 % Orden: esta_ocupada(pista,hora).
@@ -74,21 +74,11 @@ esta_ocupada(P,H):-ocupada(P,LH),miembro(H,LH).
 detectar_clave(X):-clave_emergencia(L),miembro(X,L).
 es_emergencia(L1):-miembro(X,L1),detectar_clave(X).
 
-% funcion que calcula la hora estimada de aterrizaje de un avion, segun
-% su velocidad, distancia, y hora actual.
-% Orden: hora_de_aterrizaje(velocidad,distancia,hora actual,hora
-% estimada).
-hora_de_aterrizaje(0,0,H,H).
-hora_de_aterrizaje(Vel,Dis,Hora1,HoraX):-hora_de_aterrizaje(0,0,HoraX,HoraX),HoraX is (Vel*Hora1-Dis)/(Vel).
-
-hora_de_disponibilidad(H,L0):-not(miembro(H,L0)),miembro(H1,L0), H1 is H-1.
-hora_de_disponibilidad(H,L0):-hora_de_disponibilidad(H1,L0),H1 is H-1.
-
-confirm_aterrizaje(P,H):-puede_aterrizar(A,P,H),write('Su avion '+A+' puede aterrizar en la pista '+P+' a las '+H),!.
-confirm_aterrizaje(P,H1):-ocupada(P,L0),write('Debe esperar hasta las '+H1+' para disponibilidad de la pista'),hora_de_disponibilidad(H1,L0).
-confirm_despegue(P,H):-puede_despegar(A,P,H,_),write('Claro, la pista '+P+' esta preparada para que su '+A+' despegue a las '+H),!.
-confirm_despegue(P,H1):-ocupada(P,L0),write('Debe esperar la disponibilidad de la pista a las '+H1),hora_de_disponibilidad(H1,L0).
-
+confirm_aterrizaje(A,P,H):-puede_aterrizar(A,P,H),!,write('Su avion '),write(A),write(' puede aterrizar en la pista '),write(P),write(' a las '),write(H).
+confirm_aterrizaje(_,_,_):-write('Debe esperar la disponibilidad de la pista').
+confirm_despegue(A,P,H,_):-puede_despegar(A,P,H),!,write('Claro, la pista '),write(P),write(' esta preparada para que su '),write(A),write(' despegue a las '),write(H).
+confirm_despegue(A,P,H,Dir):-puede_despegar(A,P,H,Dir),!,write('Listo, la pista '),write(P),write( 'esta preparada para su despegue en direccion '),write(Dir).
+confirm_despegue(_):-write('Debe esperar la disponibilidad de la pista').
 
 %Funcion miembro de una lista.
 miembro(X,[X|_]).
